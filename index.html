@@ -2,56 +2,63 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Extreme v2.3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>English Extreme v2.3 Fix</title>
     <style>
-        :root { --prm: #2563eb; --sec: #64748b; --bg: #f1f5f9; --white: #ffffff; --suc: #10b981; --warn: #f59e0b; }
-        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        :root { --prm: #2563eb; --sec: #64748b; --bg: #f1f5f9; --white: #ffffff; --suc: #10b981; --err: #ef4444; }
+        * { box-sizing: border-box; font-family: -apple-system, sans-serif; }
         body { background: var(--bg); margin: 0; padding: 10px; padding-bottom: 80px; }
         
+        /* Навигация */
         .nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000; }
-        .nav-btn { flex: 1; padding: 15px; border: none; background: none; font-weight: bold; color: var(--sec); cursor: pointer; }
+        .nav-btn { flex: 1; padding: 15px; border: none; background: none; font-weight: bold; color: var(--sec); cursor: pointer; text-align: center; }
         .nav-btn.active { color: var(--prm); border-top: 3px solid var(--prm); }
 
+        /* Страницы */
         .page { display: none; max-width: 500px; margin: 0 auto; }
         .page.active { display: block; }
 
-        .card { background: var(--white); padding: 25px; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; text-align: center; min-height: 180px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; }
+        /* Карточки */
+        .card { background: var(--white); padding: 25px; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; text-align: center; min-height: 180px; display: flex; flex-direction: column; justify-content: center; }
         .btn { background: var(--prm); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin: 5px 0; }
         
         .word-main { font-size: 38px; font-weight: 800; color: var(--prm); margin-bottom: 10px; }
         .word-sub { font-size: 24px; color: var(--sec); border-top: 1px solid #eee; padding-top: 15px; display: none; }
         .word-sub.visible { display: block; }
         
-        select, input, textarea { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ccc; margin-top: 10px; font-size: 14px; background: white; }
-        .lib-item { display: flex; justify-content: space-between; padding: 10px; background: white; margin-bottom: 5px; border-radius: 8px; font-size: 14px; align-items: center; border-left: 4px solid var(--prm); }
+        select, input, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; margin-top: 10px; font-size: 16px; background: white; outline: none; }
+        
+        /* Список слов */
+        .lib-item { display: flex; justify-content: space-between; padding: 12px; background: white; margin-bottom: 8px; border-radius: 10px; align-items: center; border-left: 5px solid var(--prm); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .tag { font-size: 10px; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #64748b; margin-left: 5px; }
-        .pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 10px; }
-        .count-badge { background: var(--prm); color: white; padding: 2px 8px; border-radius: 10px; font-size: 14px; }
+        
+        /* Блок переноса */
+        .sync-section { background: #eff6ff; border: 2px dashed var(--prm); padding: 15px; border-radius: 15px; margin-top: 20px; }
+        #exportArea { display: none; font-family: monospace; font-size: 10px; height: 100px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div id="p-train" class="page active">
     <div style="margin-bottom: 10px;">
-        <label style="font-size: 12px; color: var(--sec);">Режим обучения:</label>
+        <label style="font-size: 12px; color: var(--sec);">Категория:</label>
         <select id="trainFilter" onchange="curIdx=0; updateTrainer()">
-            <option value="all">Все категории</option>
-            <option value="Местоимения">👤 Местоимения и союзы</option>
+            <option value="all">Все слова</option>
+            <option value="Местоимения">👤 Местоимения</option>
             <option value="Глаголы">⚡ Глаголы</option>
             <option value="Прилагательные">🎨 Прилагательные</option>
             <option value="Существительные">🏢 Существительные</option>
-            <option value="Наречия">📍 Наречия и предлоги</option>
+            <option value="Наречия">📍 Наречия</option>
             <option value="Время">⏳ Разное</option>
         </select>
     </div>
 
     <div id="t-progress" style="font-size: 12px; color: var(--sec); margin-bottom: 5px;">Слово 0 из 0</div>
     
-    <div class="card" onclick="document.getElementById('t-trans').classList.toggle('visible')">
+    <div class="card" onclick="toggleTranslation()">
         <div id="t-word" class="word-main">...</div>
         <div id="t-trans" class="word-sub">...</div>
-        <div style="font-size: 12px; color: #999; margin-top: 10px;">(Нажми для перевода)</div>
+        <p id="t-hint" style="font-size: 12px; color: #999; margin-top: 10px;">(Нажми, чтобы перевести)</p>
     </div>
     
     <div style="display:flex; gap:10px">
@@ -59,192 +66,200 @@
         <button class="btn" onclick="speakCurrent()">🔊 Слушать</button>
         <button class="btn" style="background:#94a3b8" onclick="move(1)">➡</button>
     </div>
-    <button class="btn" style="background:#6366f1; margin-top:15px;" onclick="shuffleWords()">🔀 Перемешать выборку</button>
+    <button class="btn" style="background:#6366f1; margin-top:10px;" onclick="shuffleWords()">🔀 Перемешать</button>
 </div>
 
 <div id="p-lib" class="page">
-    <h2>📚 База слов <span class="count-badge" id="count">0</span></h2>
+    <h3>📚 База слов (<span id="count">0</span>)</h3>
     
-    <div class="card" style="text-align: left; min-height: auto;">
-        <label>Добавить в категорию:</label>
+    <div class="card" style="text-align: left; min-height: auto; padding: 15px;">
+        <label>Добавить в:</label>
         <select id="importCat">
             <option value="Существительные">Существительные</option>
             <option value="Глаголы">Глаголы</option>
             <option value="Прилагательные">Прилагательные</option>
-            <option value="Местоимения">Местоимения и союзы</option>
-            <option value="Наречия">Наречия и предлоги</option>
+            <option value="Местоимения">Местоимения</option>
+            <option value="Наречия">Наречия</option>
             <option value="Время">Разное</option>
         </select>
         <textarea id="massInput" placeholder="Word - Перевод (каждая пара с новой строки)"></textarea>
-        <button class="btn" style="background:var(--suc)" onclick="massImport()">📥 Импортировать</button>
+        <button class="btn" style="background:var(--suc)" onclick="massImport()">📥 Добавить слова</button>
     </div>
 
-    <div class="card" style="min-height: auto;">
-        <p style="font-size: 13px; margin-top: 0;">Быстрая загрузка пресетов:</p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
-            <button class="btn" style="font-size: 11px; padding: 8px;" onclick="loadTheme('pronouns')">👤 Местоимения</button>
-            <button class="btn" style="font-size: 11px; padding: 8px;" onclick="loadTheme('verbs')">⚡ Глаголы</button>
-            <button class="btn" style="font-size: 11px; padding: 8px;" onclick="loadTheme('adj')">🎨 Прил-ые</button>
-            <button class="btn" style="font-size: 11px; padding: 8px;" onclick="loadTheme('time')">⏳ Время</button>
-        </div>
-        <button class="btn" style="background:#ef4444; margin-top:15px" onclick="clearAll()">🗑 Очистить всё</button>
+    <div class="sync-section">
+        <h4 style="margin:0; color: var(--prm);">Синхронизация (GitHub)</h4>
+        <button class="btn" style="background:var(--prm)" onclick="doExport()">1. Экспорт (Копировать базу)</button>
+        <textarea id="exportArea" readonly></textarea>
+        <button class="btn" style="background:#8b5cf6; margin-top:10px;" onclick="doImport()">2. Импорт (Вставить базу)</button>
     </div>
 
-    <input type="text" id="libSearch" placeholder="🔍 Поиск..." oninput="libPage=0; renderLibrary()">
-    <div id="lib-list" style="margin-top: 10px;"></div>
-    
-    <div class="pagination" id="lib-nav">
-        <button class="btn" style="background:#94a3b8; width: 40%;" onclick="changeLibPage(-1)">Назад</button>
-        <span id="pageInfo">1 / 1</span>
-        <button class="btn" style="background:#94a3b8; width: 40%;" onclick="changeLibPage(1)">Вперед</button>
-    </div>
+    <button class="btn" style="background:var(--err); margin-top: 20px;" onclick="clearAll()">🗑 Очистить память</button>
+
+    <input type="text" id="libSearch" placeholder="🔍 Поиск по словам..." oninput="renderLibrary()" style="margin-top: 20px;">
+    <div id="lib-list" style="margin-top: 15px;"></div>
 </div>
 
 <nav class="nav">
-    <button class="nav-btn active" onclick="nav('train', this)">🏃 Учить</button>
-    <button class="nav-btn" onclick="nav('lib', this)">📚 База</button>
+    <button id="nav-train" class="nav-btn active" onclick="showPage('train')">🏃 Учить</button>
+    <button id="nav-lib" class="nav-btn" onclick="showPage('lib')">📚 База</button>
 </nav>
 
 <script>
-    const themes = {
-        pronouns: { cat: "Местоимения", words: ["I - Я", "You - Ты/Вы", "He - Он", "She - Она", "It - Оно", "We - Мы", "They - Они", "And - И", "But - Но", "Or - Или"] },
-        verbs: { cat: "Глаголы", words: ["Be - Быть", "Have - Иметь", "Do - Делать", "Say - Сказать", "Go - Идти", "Get - Получать", "Make - Делать", "Know - Знать"] },
-        adj: { cat: "Прилагательные", words: ["Good - Хороший", "New - Новый", "First - Первый", "Last - Последний", "Long - Длинный", "Great - Великий"] },
-        time: { cat: "Время", words: ["Now - Сейчас", "Then - Тогда", "Before - До", "After - После", "Soon - Скоро", "Today - Сегодня", "Always - Всегда"] }
-    };
-
+    // Загрузка данных
     let library = JSON.parse(localStorage.getItem('eng_v2.3')) || [];
     let curIdx = 0;
-    let libPage = 0;
-    const itemsPerPage = 15;
 
-    function save() { localStorage.setItem('eng_v2.3', JSON.stringify(library)); }
-
-    function massImport() {
-        const text = document.getElementById('massInput').value;
-        const cat = document.getElementById('importCat').value;
-        const lines = text.split('\n');
-        lines.forEach(line => {
-            if(line.includes('-')) {
-                const [en, ru] = line.split('-').map(s => s.trim());
-                if(en && ru && !library.some(i => i.en.toLowerCase() === en.toLowerCase())) {
-                    library.push({en, ru, cat});
-                }
-            }
-        });
-        save(); renderLibrary();
-        document.getElementById('massInput').value = '';
-    }
-
-    function loadTheme(key) {
-        const theme = themes[key];
-        theme.words.forEach(line => {
-            const [en, ru] = line.split('-').map(s => s.trim());
-            if(!library.some(i => i.en.toLowerCase() === en.toLowerCase())) {
-                library.push({en, ru, cat: theme.cat});
-            }
-        });
-        save(); renderLibrary();
-        alert("Загружено в раздел: " + theme.cat);
-    }
-
-    function renderLibrary() {
-        const query = document.getElementById('libSearch').value.toLowerCase();
-        const filtered = library.filter(w => w.en.toLowerCase().includes(query) || w.ru.toLowerCase().includes(query));
-        
+    function save() { 
+        localStorage.setItem('eng_v2.3', JSON.stringify(library)); 
         document.getElementById('count').innerText = library.length;
-        const list = document.getElementById('lib-list');
+    }
+
+    // Переключение страниц (Исправлено)
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         
-        const start = libPage * itemsPerPage;
-        const pageItems = filtered.slice(start, start + itemsPerPage);
-
-        list.innerHTML = pageItems.map((w) => {
-            // Ищем индекс в основном массиве для корректного удаления
-            const globalIdx = library.findIndex(item => item.en === w.en);
-            return `
-            <div class="lib-item">
-                <span><b>${w.en}</b> - ${w.ru} <span class="tag">${w.cat || 'Без кат.'}</span></span>
-                <button onclick="delWord(${globalIdx})" style="border:none;background:none;color:#ef4444;">✕</button>
-            </div>
-        `}).join('');
-
-        const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
-        document.getElementById('pageInfo').innerText = (libPage + 1) + ' / ' + totalPages;
+        document.getElementById('p-' + pageId).classList.add('active');
+        document.getElementById('nav-' + pageId).classList.add('active');
+        
+        if(pageId === 'train') updateTrainer();
+        if(pageId === 'lib') renderLibrary();
     }
 
-    function changeLibPage(dir) {
-        libPage += dir;
-        if(libPage < 0) libPage = 0;
-        renderLibrary();
-    }
-
-    function delWord(idx) {
-        library.splice(idx, 1);
-        save(); renderLibrary();
-    }
-
-    function getFilteredTrainingList() {
-        const filter = document.getElementById('trainFilter').value;
-        if(filter === 'all') return library;
-        return library.filter(w => w.cat === filter);
-    }
-
+    // Тренажер
     function updateTrainer() {
-        const trainList = getFilteredTrainingList();
+        const filter = document.getElementById('trainFilter').value;
+        const list = (filter === 'all') ? library : library.filter(w => w.cat === filter);
+        
         const wordEl = document.getElementById('t-word');
         const transEl = document.getElementById('t-trans');
         const progEl = document.getElementById('t-progress');
 
-        if(!trainList.length) {
+        if(list.length === 0) {
             wordEl.innerText = "Пусто";
-            transEl.innerText = "Добавьте слова в эту категорию";
+            transEl.innerText = "Добавьте слова в базу";
             progEl.innerText = "0 / 0";
             return;
         }
-        
-        if(curIdx >= trainList.length) curIdx = 0;
-        
-        wordEl.innerText = trainList[curIdx].en;
-        transEl.innerText = trainList[curIdx].ru;
+
+        if(curIdx >= list.length) curIdx = 0;
+        if(curIdx < 0) curIdx = list.length - 1;
+
+        wordEl.innerText = list[curIdx].en;
+        transEl.innerText = list[curIdx].ru;
         transEl.classList.remove('visible');
-        progEl.innerText = `Слово ${curIdx + 1} из ${trainList.length}`;
+        progEl.innerText = `Слово ${curIdx + 1} из ${list.length}`;
+    }
+
+    function toggleTranslation() {
+        document.getElementById('t-trans').classList.toggle('visible');
     }
 
     function move(step) {
-        const list = getFilteredTrainingList();
-        if(!list.length) return;
-        curIdx = (curIdx + step + list.length) % list.length;
+        curIdx += step;
         updateTrainer();
     }
 
     function shuffleWords() {
-        // Перемешиваем только основной массив, но тренер подхватит это
         library.sort(() => Math.random() - 0.5);
         curIdx = 0;
         updateTrainer();
-    }
-
-    function clearAll() {
-        if(confirm("Удалить ВСЕ слова из памяти?")) { library = []; save(); renderLibrary(); curIdx = 0; updateTrainer(); }
-    }
-
-    function nav(p, btn) {
-        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('p-'+p).classList.add('active');
-        btn.classList.add('active');
-        if(p === 'train') updateTrainer(); else renderLibrary();
+        alert("Перемешано!");
     }
 
     function speakCurrent() {
-        const list = getFilteredTrainingList();
-        if(!list.length) return;
+        const text = document.getElementById('t-word').innerText;
+        if(text === "Пусто") return;
         window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(list[curIdx].en);
-        msg.lang = 'en-US';
-        window.speechSynthesis.speak(msg);
+        let m = new SpeechSynthesisUtterance(text);
+        m.lang = 'en-US';
+        window.speechSynthesis.speak(m);
     }
 
+    // База слов
+    function massImport() {
+        const input = document.getElementById('massInput');
+        const cat = document.getElementById('importCat').value;
+        if(!input.value.trim()) return;
+
+        const lines = input.value.split('\n');
+        lines.forEach(line => {
+            if(line.includes('-')) {
+                const [en, ru] = line.split('-').map(s => s.trim());
+                if(en && ru) library.push({ en, ru, cat });
+            }
+        });
+        
+        input.value = '';
+        save();
+        renderLibrary();
+        alert("Добавлено!");
+    }
+
+    function renderLibrary() {
+        const query = document.getElementById('libSearch').value.toLowerCase();
+        const listEl = document.getElementById('lib-list');
+        const filtered = library.filter(w => w.en.toLowerCase().includes(query) || w.ru.toLowerCase().includes(query));
+        
+        listEl.innerHTML = filtered.map((w, index) => `
+            <div class="lib-item">
+                <span><b>${w.en}</b> - ${w.ru} <span class="tag">${w.cat}</span></span>
+                <button onclick="deleteWord(${index})" style="border:none; background:none; color:var(--err); font-size:18px;">✕</button>
+            </div>
+        `).join('');
+        document.getElementById('count').innerText = library.length;
+    }
+
+    function deleteWord(index) {
+        if(confirm("Удалить слово?")) {
+            library.splice(index, 1);
+            save();
+            renderLibrary();
+        }
+    }
+
+    function clearAll() {
+        if(confirm("ВНИМАНИЕ! Это удалит ВСЕ слова из памяти. Продолжить?")) {
+            library = [];
+            save();
+            renderLibrary();
+            updateTrainer();
+        }
+    }
+
+    // ПЕРЕНОС ДАННЫХ (Исправлено)
+    function doExport() {
+        if(library.length === 0) { alert("База пуста!"); return; }
+        const area = document.getElementById('exportArea');
+        area.value = JSON.stringify(library);
+        area.style.display = 'block';
+        area.select();
+        try {
+            document.execCommand('copy');
+            alert("Код базы скопирован! Сохраните его в мессенджере.");
+        } catch(e) {
+            alert("Пожалуйста, выделите и скопируйте текст в появившемся поле вручную.");
+        }
+    }
+
+    function doImport() {
+        const data = prompt("Вставьте код базы:");
+        if(!data) return;
+        try {
+            const parsed = JSON.parse(data);
+            if(Array.isArray(parsed)) {
+                library = parsed;
+                save();
+                renderLibrary();
+                updateTrainer();
+                alert("Данные успешно импортированы!");
+            }
+        } catch(e) {
+            alert("Ошибка: неверный формат данных.");
+        }
+    }
+
+    // Инициализация
     updateTrainer();
 </script>
 </body>
