@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Extreme v2.3 Sync-Fix</title>
+    <title>English Extreme v2.3 Ultra-Sync</title>
     <style>
         body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 15px; padding-bottom: 80px; }
         .page { display: none; }
         .active { display: block; }
         .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; margin-bottom: 15px; }
-        .word-en { font-size: 36px; font-weight: bold; color: #2563eb; }
+        .word-en { font-size: 36px; font-weight: bold; color: #2563eb; min-height: 44px; }
         .word-ru { font-size: 24px; color: #64748b; margin-top: 15px; display: none; border-top: 1px solid #eee; padding-top: 10px; }
         .word-ru.show { display: block; }
-        .btn { background: #2563eb; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-bottom: 10px; font-size: 16px; }
+        .btn { background: #2563eb; color: white; border: none; padding: 14px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-bottom: 10px; font-size: 16px; }
         .btn-gray { background: #94a3b8; }
         .btn-red { background: #ef4444; }
-        .nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+        .nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 100; }
         .nav button { flex: 1; padding: 20px; border: none; background: none; font-weight: bold; color: #64748b; }
         .nav button.active { color: #2563eb; border-top: 3px solid #2563eb; }
-        textarea { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        .item { background: white; padding: 10px; margin-bottom: 5px; border-radius: 8px; display: flex; justify-content: space-between; border-left: 4px solid #2563eb; font-size: 14px; }
+        textarea { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        .item { background: white; padding: 12px; margin-bottom: 5px; border-radius: 8px; display: flex; justify-content: space-between; border-left: 4px solid #2563eb; font-size: 14px; align-items: center; }
         #sync-box { display: none; background: #fffde7; border: 2px solid #fbc02d; padding: 10px; border-radius: 10px; margin-top: 10px; }
     </style>
 </head>
@@ -27,16 +27,18 @@
 
 <div id="train" class="page active">
     <h2>🏃 Учить</h2>
-    <div id="prog" style="font-size: 12px; margin-bottom: 10px;">Слово 0 из 0</div>
+    <div id="prog" style="font-size: 12px; margin-bottom: 10px; color: #666;">Слово 0 из 0</div>
     <div class="card" onclick="document.getElementById('ru').classList.toggle('show')">
-        <div id="en" class="word-en">Добавьте слова</div>
+        <div id="en" class="word-en">База пуста</div>
         <div id="ru" class="word-ru">...</div>
+        <p style="font-size: 10px; color: #ccc; margin-top: 10px;">(Нажми на карточку)</p>
     </div>
     <div style="display: flex; gap: 10px;">
         <button class="btn btn-gray" onclick="changeWord(-1)">⬅</button>
-        <button class="btn" onclick="speak()">🔊</button>
+        <button class="btn" onclick="speak()">🔊 Слушать</button>
         <button class="btn btn-gray" onclick="changeWord(1)">➡</button>
     </div>
+    <button class="btn" style="background: #6366f1; margin-top: 10px;" onclick="shuffle()">🔀 Перемешать</button>
 </div>
 
 <div id="lib" class="page">
@@ -44,22 +46,22 @@
     
     <div class="card">
         <textarea id="mass" rows="3" placeholder="Слово - Перевод"></textarea>
-        <button class="btn" onclick="importWords()">📥 Добавить</button>
+        <button class="btn" onclick="importWords()">📥 Добавить вручную</button>
     </div>
 
-    <div class="card" style="background: #e3f2fd;">
-        <p style="font-size: 13px; font-weight: bold; margin-top:0;">Синхронизация:</p>
-        <button class="btn" onclick="exportData()">1. ПОЛУЧИТЬ КОД ДЛЯ КОПИРОВАНИЯ</button>
+    <div class="card" style="background: #e3f2fd; border: 1px solid #2196f3;">
+        <p style="font-size: 14px; font-weight: bold; margin-top:0;">Перенос истории (Sync):</p>
+        <button class="btn" onclick="exportData()">1. ПОЛУЧИТЬ КОД</button>
         
         <div id="sync-box">
-            <p style="font-size: 11px; color: #666;">Зажми и скопируй этот текст целиком:</p>
-            <textarea id="sync-display" rows="5" readonly></textarea>
+            <p style="font-size: 11px; color: #d32f2f; font-weight: bold;">СКОПИРУЙТЕ ЭТОТ ТЕКСТ ПОЛНОСТЬЮ:</p>
+            <textarea id="sync-display" rows="5" readonly onclick="this.select()"></textarea>
         </div>
 
-        <button class="btn" style="background:#8b5cf6; margin-top:10px;" onclick="importData()">2. ВСТАВИТЬ КОД (ИМПОРТ)</button>
+        <button class="btn" style="background:#8b5cf6; margin-top:10px;" onclick="importData()">2. ВСТАВИТЬ КОД</button>
     </div>
 
-    <button class="btn btn-red" onclick="clearAll()">🗑 Сброс</button>
+    <button class="btn btn-red" onclick="clearAll()">🗑 Полный сброс</button>
     <div id="list"></div>
 </div>
 
@@ -69,13 +71,17 @@
 </nav>
 
 <script>
-    // Проверка обоих ключей (старого и нового) для совместимости
-    let db = JSON.parse(localStorage.getItem('eng_v2.3')) || JSON.parse(localStorage.getItem('eng_db')) || [];
+    // Пытаемся достать данные из любого доступного ключа
+    let db = JSON.parse(localStorage.getItem('eng_v2.3')) || 
+             JSON.parse(localStorage.getItem('eng_db')) || 
+             JSON.parse(localStorage.getItem('eng_extreme')) || [];
+    
     let idx = 0;
 
     function save() {
-        localStorage.setItem('eng_v2.3', JSON.stringify(db));
-        localStorage.setItem('eng_db', JSON.stringify(db)); // Дублируем для надежности
+        const str = JSON.stringify(db);
+        localStorage.setItem('eng_v2.3', str);
+        localStorage.setItem('eng_db', str); // Дублируем для совместимости со старым кодом
         document.getElementById('count').innerText = db.length;
     }
 
@@ -88,16 +94,28 @@
     }
 
     function update() {
-        if(db.length === 0) return;
+        const enEl = document.getElementById('en');
+        const ruEl = document.getElementById('ru');
+        const prEl = document.getElementById('prog');
+        
+        if(!db || db.length === 0) {
+            enEl.innerText = "База пуста";
+            ruEl.innerText = "Перейдите в Базу";
+            prEl.innerText = "0 из 0";
+            return;
+        }
+        
         if(idx >= db.length) idx = 0;
         if(idx < 0) idx = db.length - 1;
-        document.getElementById('en').innerText = db[idx].en;
-        document.getElementById('ru').innerText = db[idx].ru;
-        document.getElementById('ru').classList.remove('show');
-        document.getElementById('prog').innerText = "Слово " + (idx + 1) + " из " + db.length;
+        
+        enEl.innerText = db[idx].en;
+        ruEl.innerText = db[idx].ru;
+        ruEl.classList.remove('show');
+        prEl.innerText = "Слово " + (idx + 1) + " из " + db.length;
     }
 
     function changeWord(s) { idx += s; update(); }
+    function shuffle() { db.sort(() => Math.random() - 0.5); idx = 0; save(); update(); }
 
     function speak() {
         if(!db[idx]) return;
@@ -109,7 +127,7 @@
 
     function importWords() {
         const val = document.getElementById('mass').value;
-        if(!val) return;
+        if(!val.trim()) return;
         val.split('\n').forEach(line => {
             if(line.includes('-')) {
                 const p = line.split('-');
@@ -122,49 +140,57 @@
 
     function render() {
         document.getElementById('count').innerText = db.length;
-        document.getElementById('list').innerHTML = db.map((w, i) => `
+        document.getElementById('list').innerHTML = db.slice().reverse().map((w, i) => `
             <div class="item">
-                <span>${w.en} - ${w.ru}</span>
-                <button onclick="del(${i})" style="color:red; border:none; background:none;">✕</button>
+                <span><b>${w.en}</b> - ${w.ru}</span>
+                <button onclick="del(${db.length - 1 - i})" style="color:red; border:none; background:none; font-weight:bold; padding:5px;">✕</button>
             </div>
-        `).reverse().join('');
+        `).join('');
     }
 
     function del(i) { db.splice(i, 1); save(); render(); }
-    function clearAll() { if(confirm("Удалить всё?")) { db = []; save(); render(); update(); } }
+    function clearAll() { if(confirm("Удалить ВСЕ слова?")) { db = []; save(); render(); update(); } }
 
-    // --- ИСПРАВЛЕННЫЙ ЭКСПОРТ/ИМПОРТ ---
     function exportData() {
-        if(db.length === 0) { alert("База пуста!"); return; }
-        const code = JSON.stringify(db);
+        if(db.length === 0) { alert("Нечего копировать!"); return; }
         const box = document.getElementById('sync-box');
         const display = document.getElementById('sync-display');
-        
-        display.value = code;
+        display.value = JSON.stringify(db);
         box.style.display = 'block';
-        
-        // Попытка автокопирования
         display.select();
-        try {
-            document.execCommand('copy');
-            alert("Код в окне ниже! Если он не скопировался сам — выдели его вручную.");
-        } catch(e) {}
+        alert("Код готов! Скопируйте его из желтого поля.");
     }
 
     function importData() {
-        const data = prompt("Вставь код базы сюда (длинный текст):");
-        if(!data) return;
+        let rawData = prompt("Вставьте код базы:");
+        if(!rawData) return;
+        
         try {
-            const cleanData = data.trim();
-            db = JSON.parse(cleanData);
-            save();
-            tab('train');
-            alert("Успешно! Загружено слов: " + db.length);
+            // Очистка от мусора (бывает, что в начало попадают кавычки или пробелы)
+            rawData = rawData.trim();
+            if (rawData.startsWith('"') && rawData.endsWith('"')) {
+                rawData = rawData.substring(1, rawData.length - 1);
+            }
+            // Замена экранированных кавычек, если они есть
+            rawData = rawData.replace(/\\"/g, '"');
+
+            const parsed = JSON.parse(rawData);
+            
+            if (Array.isArray(parsed)) {
+                db = parsed;
+                save();
+                tab('train');
+                alert("Ура! Загружено слов: " + db.length);
+            } else {
+                alert("Ошибка: код должен быть списком слов.");
+            }
         } catch(e) {
-            alert("Ошибка! Текст скопирован не полностью.");
+            console.error(e);
+            alert("Ошибка формата! Попробуйте скопировать код еще раз, очень внимательно.");
         }
     }
 
+    // Старт
     save();
     update();
 </script>
