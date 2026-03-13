@@ -9,16 +9,13 @@
         * { box-sizing: border-box; font-family: -apple-system, sans-serif; }
         body { background: var(--bg); margin: 0; padding: 10px; padding-bottom: 80px; }
         
-        /* Навигация */
         .nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000; }
         .nav-btn { flex: 1; padding: 15px; border: none; background: none; font-weight: bold; color: var(--sec); cursor: pointer; text-align: center; }
         .nav-btn.active { color: var(--prm); border-top: 3px solid var(--prm); }
 
-        /* Страницы */
         .page { display: none; max-width: 500px; margin: 0 auto; }
         .page.active { display: block; }
 
-        /* Карточки */
         .card { background: var(--white); padding: 25px; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; text-align: center; min-height: 180px; display: flex; flex-direction: column; justify-content: center; }
         .btn { background: var(--prm); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin: 5px 0; }
         
@@ -28,13 +25,11 @@
         
         select, input, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; margin-top: 10px; font-size: 16px; background: white; outline: none; }
         
-        /* Список слов */
         .lib-item { display: flex; justify-content: space-between; padding: 12px; background: white; margin-bottom: 8px; border-radius: 10px; align-items: center; border-left: 5px solid var(--prm); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .tag { font-size: 10px; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #64748b; margin-left: 5px; }
         
-        /* Блок переноса */
         .sync-section { background: #eff6ff; border: 2px dashed var(--prm); padding: 15px; border-radius: 15px; margin-top: 20px; }
-        #exportArea { display: none; font-family: monospace; font-size: 10px; height: 100px; margin-top: 10px; }
+        #exportArea { display: none; font-family: monospace; font-size: 10px; height: 100px; margin-top: 10px; width: 100%; }
     </style>
 </head>
 <body>
@@ -50,217 +45,4 @@
             <option value="Существительные">🏢 Существительные</option>
             <option value="Наречия">📍 Наречия</option>
             <option value="Время">⏳ Разное</option>
-        </select>
-    </div>
-
-    <div id="t-progress" style="font-size: 12px; color: var(--sec); margin-bottom: 5px;">Слово 0 из 0</div>
-    
-    <div class="card" onclick="toggleTranslation()">
-        <div id="t-word" class="word-main">...</div>
-        <div id="t-trans" class="word-sub">...</div>
-        <p id="t-hint" style="font-size: 12px; color: #999; margin-top: 10px;">(Нажми, чтобы перевести)</p>
-    </div>
-    
-    <div style="display:flex; gap:10px">
-        <button class="btn" style="background:#94a3b8" onclick="move(-1)">⬅</button>
-        <button class="btn" onclick="speakCurrent()">🔊 Слушать</button>
-        <button class="btn" style="background:#94a3b8" onclick="move(1)">➡</button>
-    </div>
-    <button class="btn" style="background:#6366f1; margin-top:10px;" onclick="shuffleWords()">🔀 Перемешать</button>
-</div>
-
-<div id="p-lib" class="page">
-    <h3>📚 База слов (<span id="count">0</span>)</h3>
-    
-    <div class="card" style="text-align: left; min-height: auto; padding: 15px;">
-        <label>Добавить в:</label>
-        <select id="importCat">
-            <option value="Существительные">Существительные</option>
-            <option value="Глаголы">Глаголы</option>
-            <option value="Прилагательные">Прилагательные</option>
-            <option value="Местоимения">Местоимения</option>
-            <option value="Наречия">Наречия</option>
-            <option value="Время">Разное</option>
-        </select>
-        <textarea id="massInput" placeholder="Word - Перевод (каждая пара с новой строки)"></textarea>
-        <button class="btn" style="background:var(--suc)" onclick="massImport()">📥 Добавить слова</button>
-    </div>
-
-    <div class="sync-section">
-        <h4 style="margin:0; color: var(--prm);">Синхронизация (GitHub)</h4>
-        <button class="btn" style="background:var(--prm)" onclick="doExport()">1. Экспорт (Копировать базу)</button>
-        <textarea id="exportArea" readonly></textarea>
-        <button class="btn" style="background:#8b5cf6; margin-top:10px;" onclick="doImport()">2. Импорт (Вставить базу)</button>
-    </div>
-
-    <button class="btn" style="background:var(--err); margin-top: 20px;" onclick="clearAll()">🗑 Очистить память</button>
-
-    <input type="text" id="libSearch" placeholder="🔍 Поиск по словам..." oninput="renderLibrary()" style="margin-top: 20px;">
-    <div id="lib-list" style="margin-top: 15px;"></div>
-</div>
-
-<nav class="nav">
-    <button id="nav-train" class="nav-btn active" onclick="showPage('train')">🏃 Учить</button>
-    <button id="nav-lib" class="nav-btn" onclick="showPage('lib')">📚 База</button>
-</nav>
-
-<script>
-    // Загрузка данных
-    let library = JSON.parse(localStorage.getItem('eng_v2.3')) || [];
-    let curIdx = 0;
-
-    function save() { 
-        localStorage.setItem('eng_v2.3', JSON.stringify(library)); 
-        document.getElementById('count').innerText = library.length;
-    }
-
-    // Переключение страниц (Исправлено)
-    function showPage(pageId) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        
-        document.getElementById('p-' + pageId).classList.add('active');
-        document.getElementById('nav-' + pageId).classList.add('active');
-        
-        if(pageId === 'train') updateTrainer();
-        if(pageId === 'lib') renderLibrary();
-    }
-
-    // Тренажер
-    function updateTrainer() {
-        const filter = document.getElementById('trainFilter').value;
-        const list = (filter === 'all') ? library : library.filter(w => w.cat === filter);
-        
-        const wordEl = document.getElementById('t-word');
-        const transEl = document.getElementById('t-trans');
-        const progEl = document.getElementById('t-progress');
-
-        if(list.length === 0) {
-            wordEl.innerText = "Пусто";
-            transEl.innerText = "Добавьте слова в базу";
-            progEl.innerText = "0 / 0";
-            return;
-        }
-
-        if(curIdx >= list.length) curIdx = 0;
-        if(curIdx < 0) curIdx = list.length - 1;
-
-        wordEl.innerText = list[curIdx].en;
-        transEl.innerText = list[curIdx].ru;
-        transEl.classList.remove('visible');
-        progEl.innerText = `Слово ${curIdx + 1} из ${list.length}`;
-    }
-
-    function toggleTranslation() {
-        document.getElementById('t-trans').classList.toggle('visible');
-    }
-
-    function move(step) {
-        curIdx += step;
-        updateTrainer();
-    }
-
-    function shuffleWords() {
-        library.sort(() => Math.random() - 0.5);
-        curIdx = 0;
-        updateTrainer();
-        alert("Перемешано!");
-    }
-
-    function speakCurrent() {
-        const text = document.getElementById('t-word').innerText;
-        if(text === "Пусто") return;
-        window.speechSynthesis.cancel();
-        let m = new SpeechSynthesisUtterance(text);
-        m.lang = 'en-US';
-        window.speechSynthesis.speak(m);
-    }
-
-    // База слов
-    function massImport() {
-        const input = document.getElementById('massInput');
-        const cat = document.getElementById('importCat').value;
-        if(!input.value.trim()) return;
-
-        const lines = input.value.split('\n');
-        lines.forEach(line => {
-            if(line.includes('-')) {
-                const [en, ru] = line.split('-').map(s => s.trim());
-                if(en && ru) library.push({ en, ru, cat });
-            }
-        });
-        
-        input.value = '';
-        save();
-        renderLibrary();
-        alert("Добавлено!");
-    }
-
-    function renderLibrary() {
-        const query = document.getElementById('libSearch').value.toLowerCase();
-        const listEl = document.getElementById('lib-list');
-        const filtered = library.filter(w => w.en.toLowerCase().includes(query) || w.ru.toLowerCase().includes(query));
-        
-        listEl.innerHTML = filtered.map((w, index) => `
-            <div class="lib-item">
-                <span><b>${w.en}</b> - ${w.ru} <span class="tag">${w.cat}</span></span>
-                <button onclick="deleteWord(${index})" style="border:none; background:none; color:var(--err); font-size:18px;">✕</button>
-            </div>
-        `).join('');
-        document.getElementById('count').innerText = library.length;
-    }
-
-    function deleteWord(index) {
-        if(confirm("Удалить слово?")) {
-            library.splice(index, 1);
-            save();
-            renderLibrary();
-        }
-    }
-
-    function clearAll() {
-        if(confirm("ВНИМАНИЕ! Это удалит ВСЕ слова из памяти. Продолжить?")) {
-            library = [];
-            save();
-            renderLibrary();
-            updateTrainer();
-        }
-    }
-
-    // ПЕРЕНОС ДАННЫХ (Исправлено)
-    function doExport() {
-        if(library.length === 0) { alert("База пуста!"); return; }
-        const area = document.getElementById('exportArea');
-        area.value = JSON.stringify(library);
-        area.style.display = 'block';
-        area.select();
-        try {
-            document.execCommand('copy');
-            alert("Код базы скопирован! Сохраните его в мессенджере.");
-        } catch(e) {
-            alert("Пожалуйста, выделите и скопируйте текст в появившемся поле вручную.");
-        }
-    }
-
-    function doImport() {
-        const data = prompt("Вставьте код базы:");
-        if(!data) return;
-        try {
-            const parsed = JSON.parse(data);
-            if(Array.isArray(parsed)) {
-                library = parsed;
-                save();
-                renderLibrary();
-                updateTrainer();
-                alert("Данные успешно импортированы!");
-            }
-        } catch(e) {
-            alert("Ошибка: неверный формат данных.");
-        }
-    }
-
-    // Инициализация
-    updateTrainer();
-</script>
-</body>
-</html>
+        </
